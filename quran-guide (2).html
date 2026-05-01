@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رہنمائی — قرآن و حدیث کی روشنی میں</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A84C;--gold2:#E8C97A;--gold3:#8B6914;
+  --g:#1A5C3A;--gd:#0D3B25;--gl:#2A7A50;
+  --cream:#F5EDD6;--parch:#FBF6E9;--ink:#1A1209;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Nastaliq Urdu','Amiri',Georgia,serif;
+  background:var(--gd);min-height:100vh;color:var(--cream);
+  direction:rtl;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    repeating-linear-gradient(60deg,transparent,transparent 60px,rgba(201,168,76,0.03) 60px,rgba(201,168,76,0.03) 61px),
+    repeating-linear-gradient(-60deg,transparent,transparent 60px,rgba(201,168,76,0.03) 60px,rgba(201,168,76,0.03) 61px);
+}
+.page{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 18px 80px}
+
+/* HEADER */
+.header{text-align:center;margin-bottom:44px;animation:fadeDown .8s ease}
+.bismillah{font-family:'Amiri',serif;font-size:clamp(24px,5vw,36px);color:var(--gold);text-shadow:0 0 40px rgba(201,168,76,0.4);margin-bottom:14px;letter-spacing:2px}
+.deco{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0}
+.deco-line{height:1px;width:80px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.deco-star{color:var(--gold);font-size:14px}
+.app-title{font-size:clamp(24px,5vw,40px);font-weight:700;color:var(--cream);margin-bottom:8px;line-height:1.4}
+.app-sub{font-size:13px;color:rgba(245,237,214,0.6);line-height:2;max-width:520px;margin:0 auto}
+
+/* LANG SELECTOR */
+.lang-bar{display:flex;justify-content:center;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.lb{padding:8px 22px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);background:transparent;color:rgba(245,237,214,0.55);font-family:inherit;font-size:13px;cursor:pointer;transition:all .25s}
+.lb.active,.lb:hover{background:rgba(201,168,76,0.18);border-color:var(--gold);color:var(--gold2)}
+
+/* INPUT CARD */
+.input-card{background:linear-gradient(145deg,rgba(26,92,58,0.65),rgba(13,59,37,0.85));border:1px solid rgba(201,168,76,0.28);border-radius:6px;padding:32px 28px;box-shadow:0 20px 60px rgba(0,0,0,0.4),inset 0 1px 0 rgba(201,168,76,0.15);margin-bottom:24px;animation:fadeUp .7s ease}
+.input-label{font-size:15px;color:var(--gold2);font-weight:700;margin-bottom:6px;display:block}
+.input-hint{font-size:12px;color:rgba(245,237,214,0.42);margin-bottom:14px;display:block;line-height:1.8}
+textarea{width:100%;background:rgba(8,38,22,0.8);border:1px solid rgba(201,168,76,0.22);border-radius:4px;padding:16px 18px;font-family:'Noto Nastaliq Urdu','Amiri',serif;font-size:15px;color:var(--cream);resize:vertical;min-height:110px;line-height:1.9;direction:rtl;outline:none;transition:border-color .3s}
+textarea:focus{border-color:rgba(201,168,76,0.65);box-shadow:0 0 0 3px rgba(201,168,76,0.1)}
+textarea::placeholder{color:rgba(245,237,214,0.3);font-style:italic}
+.ask-btn{width:100%;margin-top:20px;padding:16px;background:linear-gradient(135deg,var(--gold3),var(--gold),var(--gold3));border:none;border-radius:4px;font-family:'Noto Nastaliq Urdu','Amiri',serif;font-size:18px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(201,168,76,0.3)}
+.ask-btn:hover{box-shadow:0 6px 30px rgba(201,168,76,0.5);transform:translateY(-1px)}
+.ask-btn:active{transform:translateY(0)}
+.ask-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.err{margin-top:12px;padding:12px 16px;background:rgba(180,40,40,0.15);border:1px solid rgba(200,60,60,0.3);border-radius:4px;color:#ffbbbb;font-size:12px;direction:ltr;text-align:left;font-family:monospace;display:none;word-break:break-all}
+
+/* LOADING */
+.loading{display:none;text-align:center;padding:60px 20px}
+.spinner{display:inline-block;width:50px;height:50px;border:2px solid rgba(201,168,76,0.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px}
+.loading-txt{color:var(--gold2);font-size:15px;opacity:.85}
+.loading-sub{font-size:12px;color:rgba(245,237,214,0.4);margin-top:8px}
+
+/* ANSWER */
+.answer-wrap{display:none;animation:fadeUp .6s ease}
+
+/* Scholar intro */
+.scholar-intro{display:flex;align-items:flex-start;gap:16px;background:rgba(13,59,37,0.6);border:1px solid rgba(201,168,76,0.2);border-radius:6px;padding:20px;margin-bottom:20px}
+.scholar-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold3),var(--gold));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 4px 15px rgba(201,168,76,0.3)}
+.scholar-name{font-size:13px;color:var(--gold2);font-weight:700;margin-bottom:4px}
+.scholar-badge{font-size:11px;color:rgba(245,237,214,0.5);font-family:sans-serif}
+
+/* Answer sections */
+.answer-section{background:var(--parch);border-radius:6px;overflow:hidden;margin-bottom:16px;box-shadow:0 8px 30px rgba(0,0,0,0.25)}
+
+.section-header{padding:14px 22px;display:flex;align-items:center;gap:10px;border-bottom:2px solid}
+.section-header.quran{background:linear-gradient(135deg,#0a2d1a,#1A5C3A);border-color:var(--gold3)}
+.section-header.hadith{background:linear-gradient(135deg,#1a1a0a,#3d3200);border-color:#8B6914}
+.section-header.story{background:linear-gradient(135deg,#0d1a2d,#1a3d5c);border-color:#4a7a9b}
+.section-header.guidance{background:linear-gradient(135deg,#1a0d0d,#5c1a1a);border-color:#9b4a4a}
+.section-icon{font-size:22px}
+.section-title{font-size:14px;color:var(--gold2);font-weight:700}
+
+.section-body{padding:24px 22px;direction:rtl;color:var(--ink)}
+
+/* Ayah block */
+.ayah-arabic{font-family:'Amiri',serif;font-size:clamp(20px,4vw,26px);color:#0D3B25;text-align:center;line-height:2.6;padding:20px 16px;background:rgba(26,92,58,0.07);border-radius:4px;margin:12px 0;border-right:3px solid var(--gold)}
+.ayah-ref{text-align:center;font-size:12px;color:rgba(26,92,58,0.6);font-family:sans-serif;margin-bottom:12px}
+.ayah-translation{font-size:14px;color:#2A1F0A;line-height:2.2;padding:12px 16px;background:rgba(201,168,76,0.08);border-radius:4px;margin:8px 0;border-right:2px solid rgba(201,168,76,0.4)}
+
+/* Hadith block */
+.hadith-text{font-family:'Amiri',serif;font-size:17px;color:#1a0d00;line-height:2.4;padding:16px 18px;background:rgba(201,168,76,0.07);border-radius:4px;margin:10px 0;border-right:3px solid #C9A84C;font-style:italic}
+.hadith-ref{font-size:11px;color:rgba(100,70,0,0.6);font-family:sans-serif;text-align:left;direction:ltr;margin-top:6px}
+
+/* Story block */
+.story-label{font-size:11px;color:rgba(30,60,100,0.6);font-family:sans-serif;margin-bottom:10px;display:block}
+.story-text{font-size:14px;color:#0d1a2d;line-height:2.3;padding:16px 18px;background:rgba(74,122,155,0.08);border-radius:4px;border-right:3px solid #4a7a9b}
+
+/* Guidance */
+.guidance-intro{font-size:15px;color:#1a0000;line-height:2.2;margin-bottom:16px;font-weight:600}
+.step{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;padding:14px 16px;background:rgba(155,74,74,0.06);border-radius:4px}
+.step-num{width:28px;height:28px;background:linear-gradient(135deg,#9b4a4a,#c06060);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-family:sans-serif;font-weight:700;flex-shrink:0}
+.step-text{font-size:14px;color:#1a0000;line-height:2.1;flex:1}
+
+/* Plain para */
+.para{font-size:14px;color:#2A1F0A;line-height:2.2;margin-bottom:10px}
+.ref-badge{display:inline-block;background:#1A5C3A;color:#F5EDD6;font-size:10px;padding:2px 8px;border-radius:10px;margin:0 3px;font-family:sans-serif}
+
+.answer-footer{text-align:center;padding:16px;font-size:11px;color:rgba(245,237,214,0.4);border-top:1px solid rgba(201,168,76,0.15);margin-top:8px}
+.new-q-btn{display:block;width:100%;margin-top:16px;padding:13px;background:transparent;border:1px solid rgba(201,168,76,0.35);border-radius:4px;font-family:inherit;font-size:14px;color:var(--gold2);cursor:pointer;transition:all .25s}
+.new-q-btn:hover{background:rgba(201,168,76,0.1)}
+
+/* Examples */
+.ex-section{animation:fadeUp .9s ease .3s both}
+.ex-title{font-size:12px;color:rgba(245,237,214,0.35);text-align:center;margin-bottom:12px;letter-spacing:1px}
+.ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:9px}
+.ex-chip{background:rgba(26,92,58,0.35);border:1px solid rgba(201,168,76,0.18);border-radius:4px;padding:12px 15px;font-size:13px;color:rgba(245,237,214,0.68);cursor:pointer;line-height:1.8;text-align:right;transition:all .22s}
+.ex-chip:hover{background:rgba(26,92,58,0.65);color:var(--cream);border-color:rgba(201,168,76,0.45);transform:translateY(-2px)}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:500px){
+  .input-card{padding:20px 16px}
+  .section-body{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="bismillah">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+    <div class="deco">
+      <div class="deco-line"></div>
+      <span class="deco-star">✦</span>
+      <div class="deco-line"></div>
+    </div>
+    <h1 class="app-title">قرآن و حدیث کی رہنمائی</h1>
+    <p class="app-sub">آپ اکیلے نہیں ہیں — قرآن اور سنتِ نبوی ﷺ میں آپ کے ہر مسئلے کا حل موجود ہے</p>
+  </div>
+
+  <!-- Language Bar -->
+  <div class="lang-bar">
+    <button class="lb active" onclick="setLang('ur',this)">🇵🇰 اردو</button>
+    <button class="lb" onclick="setLang('en',this)">🇬🇧 English</button>
+    <button class="lb" onclick="setLang('ar',this)">🇸🇦 عربی</button>
+  </div>
+
+  <!-- Input -->
+  <div class="input-card" id="inputCard">
+    <label class="input-label" id="inputLabel">اپنا دل کھول کر لکھیں</label>
+    <span class="input-hint" id="inputHint">جو بھی تکلیف ہے، جو بھی سوال ہے — یہاں لکھیں۔ آپ کا مسئلہ قرآن و حدیث کی روشنی میں دیکھا جائے گا</span>
+    <textarea id="q" placeholder="یہاں لکھیں..."></textarea>
+    <button class="ask-btn" id="askBtn" onclick="ask()">☪ رہنمائی لیں</button>
+    <div class="err" id="errBox"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-txt" id="loadingTxt">قرآن و احادیث میں تلاش جاری ہے...</div>
+    <div class="loading-sub" id="loadingSub">براہ کرم انتظار فرمائیں</div>
+  </div>
+
+  <!-- Answer -->
+  <div class="answer-wrap" id="answerWrap">
+
+    <div class="scholar-intro">
+      <div class="scholar-avatar">☪</div>
+      <div>
+        <div class="scholar-name" id="scholarName">قرآن و سنت کی روشنی میں جواب</div>
+        <div class="scholar-badge" id="scholarBadge">Based on Quran & Sahih Hadith only • No weak narrations</div>
+      </div>
+    </div>
+
+    <div id="answerSections"></div>
+
+    <div class="answer-footer" id="answerFooter">
+      یہ رہنمائی قرآن کریم اور صحیح احادیث پر مبنی ہے۔ کسی بڑے معاملے میں کسی عالمِ دین سے بھی رجوع کریں۔
+    </div>
+    <button class="new-q-btn" id="newQBtn" onclick="reset()">← نیا سوال پوچھیں</button>
+  </div>
+
+  <!-- Examples -->
+  <div class="ex-section" id="exSection">
+    <div class="ex-title">— آج لوگ کیا پوچھ رہے ہیں —</div>
+    <div class="ex-grid">
+      <div class="ex-chip" onclick="fill(this)">میری شادی میں بہت مسائل ہیں، کیا کروں؟</div>
+      <div class="ex-chip" onclick="fill(this)">رزق میں تنگی ہے، برکت کے لیے کیا کریں؟</div>
+      <div class="ex-chip" onclick="fill(this)">بہت زیادہ غصہ آتا ہے، اسلام میں علاج کیا ہے؟</div>
+      <div class="ex-chip" onclick="fill(this)">بہت گناہ کر چکا ہوں، کیا اللہ معاف کرے گا؟</div>
+      <div class="ex-chip" onclick="fill(this)">ڈپریشن اور اداسی سے نکلنے کا اسلامی طریقہ؟</div>
+      <div class="ex-chip" onclick="fill(this)">اولاد نافرمان ہو گئی ہے، کیا کروں؟</div>
+      <div class="ex-chip" onclick="fill(this)">والدین سے تعلق خراب ہو گیا ہے</div>
+      <div class="ex-chip" onclick="fill(this)">موت کا خوف بہت زیادہ ہے</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================
+const API_KEY = "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";
+// ============================================
+
+let lang = "ur";
+
+const UI = {
+  ur: {
+    inputLabel: "اپنا دل کھول کر لکھیں",
+    inputHint: "جو بھی تکلیف ہے، جو بھی سوال ہے — یہاں لکھیں۔ آپ کا مسئلہ قرآن و حدیث کی روشنی میں دیکھا جائے گا",
+    placeholder: "یہاں لکھیں...",
+    btnText: "☪ رہنمائی لیں",
+    loadingTxt: "قرآن و احادیث میں تلاش جاری ہے...",
+    loadingSub: "براہ کرم انتظار فرمائیں",
+    scholarName: "قرآن و سنت کی روشنی میں جواب",
+    footer: "یہ رہنمائی قرآن کریم اور صحیح احادیث پر مبنی ہے۔ کسی بڑے معاملے میں کسی عالمِ دین سے بھی رجوع کریں۔",
+    newQ: "← نیا سوال پوچھیں",
+    dir: "rtl"
+  },
+  en: {
+    inputLabel: "Share what's on your heart",
+    inputHint: "Whatever difficulty or question you have — write it here. Your problem will be addressed through the Quran and authentic Hadith.",
+    placeholder: "Type your question here...",
+    btnText: "☪ Seek Guidance",
+    loadingTxt: "Searching the Quran and Hadith for you...",
+    loadingSub: "Please wait a moment",
+    scholarName: "Guidance from Quran & Sunnah",
+    footer: "This guidance is based solely on the Holy Quran and Sahih Hadith. For major matters, also consult a qualified Islamic scholar.",
+    newQ: "← Ask a New Question",
+    dir: "ltr"
+  },
+  ar: {
+    inputLabel: "اكتب ما يثقل قلبك",
+    inputHint: "مهما كانت مشكلتك أو سؤالك — اكتبه هنا. سيتم الإجابة من القرآن الكريم والأحاديث الصحيحة",
+    placeholder: "اكتب هنا...",
+    btnText: "☪ اطلب الهداية",
+    loadingTxt: "جارٍ البحث في القرآن والأحاديث...",
+    loadingSub: "يرجى الانتظار",
+    scholarName: "هداية من القرآن والسنة",
+    footer: "هذا التوجيه مبني على القرآن الكريم والأحاديث الصحيحة فقط. في الأمور الكبيرة، استشر عالماً متخصصاً.",
+    newQ: "← سؤال جديد",
+    dir: "rtl"
+  }
+};
+
+const SYSTEM = {
+  ur: `آپ ایک مخلص اسلامی رہنما ہیں جو صرف قرآن کریم اور صحیح احادیث سے جواب دیتے ہیں۔
+آپ کا انداز ایسا ہو جیسے کوئی بزرگ، مہربان عالم کسی پریشان انسان سے ہمدردی سے بات کر رہا ہو — نہ خشک لیکچر، نہ فہرست، بلکہ دل سے بات۔
+
+جواب لازمی اس JSON format میں دیں (کوئی اضافی text نہیں، صرف JSON):
+{
+  "opening": "پہلے ہمدردی سے مسئلے کو سمجھیں اور انسان کو تسلی دیں (2-3 جملے، اردو میں)",
+  "quran_arabic": "متعلقہ آیت کا عربی متن",
+  "quran_ref": "سورہ کا نام اور آیت نمبر",
+  "quran_translation": "آیت کا اردو ترجمہ",
+  "quran_explanation": "یہ آیت اس مسئلے سے کیسے متعلق ہے — ذاتی انداز میں (اردو)",
+  "hadith_arabic": "متعلقہ صحیح حدیث کا عربی متن",
+  "hadith_translation": "حدیث کا اردو ترجمہ",
+  "hadith_ref": "حدیث کا مأخذ (مثلاً: صحیح بخاری، حدیث نمبر 123)",
+  "hadith_explanation": "یہ حدیث اس مسئلے میں کیسے رہنمائی کرتی ہے (اردو)",
+  "story": "قرآن یا حدیث سے ایک متعلقہ واقعہ یا صحابہ کی زندگی کی مثال — جسے پڑھ کر سائل اپنا مسئلہ اس میں دیکھ سکے (اردو، 4-6 جملے)",
+  "steps": ["عملی قدم 1 (اردو)", "عملی قدم 2", "عملی قدم 3", "عملی قدم 4"],
+  "closing": "آخر میں امید اور دعا کے ساتھ حوصلہ افزائی (اردو، 2-3 جملے)"
+}
+صرف صحیح (Sahih یا Hasan) احادیث استعمال کریں۔ ضعیف یا موضوع روایات بالکل نہیں۔`,
+
+  en: `You are a sincere Islamic guide who answers only from the Quran and authentic Hadith.
+Your tone should be like a warm, wise elder speaking compassionately to someone in distress — not a dry lecture, but heartfelt counsel.
+
+Respond ONLY in this JSON format (no extra text, just JSON):
+{
+  "opening": "First acknowledge the person's pain with empathy and reassurance (2-3 sentences, English)",
+  "quran_arabic": "Arabic text of a relevant Quranic verse",
+  "quran_ref": "Surah name and ayah number",
+  "quran_translation": "English translation of the verse",
+  "quran_explanation": "How this verse speaks to their situation — personal and warm (English)",
+  "hadith_arabic": "Arabic text of a relevant authentic hadith",
+  "hadith_translation": "English translation of the hadith",
+  "hadith_ref": "Source (e.g. Sahih Bukhari, Hadith 123)",
+  "hadith_explanation": "How this hadith guides them through their situation (English)",
+  "story": "A relevant story from the Quran, Sunnah, or the lives of the Companions that the person can relate their situation to (English, 4-6 sentences)",
+  "steps": ["Practical step 1 (English)", "Step 2", "Step 3", "Step 4"],
+  "closing": "End with hope, a short dua, and encouragement (English, 2-3 sentences)"
+}
+Only use Sahih or Hasan hadith. Never use weak or fabricated narrations.`,
+
+  ar: `أنت مرشد إسلامي مخلص يجيب فقط من القرآن الكريم والأحاديث الصحيحة.
+أسلوبك كأسلوب شيخ حكيم رحيم يتحدث بتعاطف مع إنسان في ضيق.
+
+أجب فقط بهذا JSON (لا نص إضافي، فقط JSON):
+{
+  "opening": "ابدأ بالتعاطف والتطمين (2-3 جمل، عربي)",
+  "quran_arabic": "نص الآية القرآنية ذات الصلة",
+  "quran_ref": "اسم السورة ورقم الآية",
+  "quran_translation": "معنى الآية بالعربية البسيطة",
+  "quran_explanation": "كيف تتحدث هذه الآية عن وضعهم (عربي)",
+  "hadith_arabic": "نص الحديث الصحيح ذي الصلة",
+  "hadith_translation": "معنى الحديث بالعربية البسيطة",
+  "hadith_ref": "المصدر (مثل: صحيح البخاري، حديث 123)",
+  "hadith_explanation": "كيف يرشدهم هذا الحديث (عربي)",
+  "story": "قصة ذات صلة من القرآن أو السنة أو حياة الصحابة (عربي، 4-6 جمل)",
+  "steps": ["خطوة عملية 1 (عربي)", "خطوة 2", "خطوة 3", "خطوة 4"],
+  "closing": "اختم بالأمل والدعاء والتشجيع (عربي، 2-3 جمل)"
+}
+استخدم أحاديث صحيحة أو حسنة فقط. لا ضعيف ولا موضوع.`
+};
+
+function setLang(l, btn) {
+  lang = l;
+  document.querySelectorAll('.lb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const u = UI[l];
+  document.getElementById('inputLabel').textContent = u.inputLabel;
+  document.getElementById('inputHint').textContent = u.inputHint;
+  document.getElementById('q').placeholder = u.placeholder;
+  document.getElementById('askBtn').textContent = u.btnText;
+  document.getElementById('loadingTxt').textContent = u.loadingTxt;
+  document.getElementById('loadingSub').textContent = u.loadingSub;
+  document.getElementById('scholarName').textContent = u.scholarName;
+  document.getElementById('answerFooter').textContent = u.footer;
+  document.getElementById('newQBtn').textContent = u.newQ;
+  // Fix direction for English
+  document.getElementById('q').style.direction = u.dir;
+  document.getElementById('q').style.textAlign = l === 'en' ? 'left' : 'right';
+}
+
+function fill(el) { document.getElementById('q').value = el.textContent.trim(); }
+
+function reset() {
+  document.getElementById('answerWrap').style.display = 'none';
+  document.getElementById('inputCard').style.display = 'block';
+  document.getElementById('exSection').style.display = 'block';
+  document.getElementById('q').value = '';
+  document.getElementById('errBox').style.display = 'none';
+}
+
+function buildAnswer(d) {
+  const isEn = lang === 'en';
+  const isAr = lang === 'ar';
+
+  const qTitle = isEn ? '📖 Quranic Guidance' : isAr ? '📖 الهداية القرآنية' : '📖 قرآنی رہنمائی';
+  const hTitle = isEn ? '🕌 Prophetic Hadith' : isAr ? '🕌 الحديث النبوي' : '🕌 حدیثِ نبوی ﷺ';
+  const sTitle = isEn ? '📜 A Story to Reflect On' : isAr ? '📜 قصة للتأمل' : '📜 ایک سبق آموز واقعہ';
+  const gTitle = isEn ? '🌿 Practical Steps for You' : isAr ? '🌿 خطوات عملية' : '🌿 آپ کے لیے عملی قدم';
+  const storyLabel = isEn ? 'From the Quran, Sunnah & lives of the Companions:' : isAr ? 'من القرآن والسنة وحياة الصحابة:' : 'قرآن، سنت اور صحابہ کرامؓ کی زندگی سے:';
+  const stepLabel = isEn ? 'Step' : isAr ? 'خطوة' : 'قدم';
+
+  return `
+    <div class="answer-section">
+      <div class="section-header quran">
+        <span class="section-icon">📖</span>
+        <span class="section-title">${qTitle}</span>
+      </div>
+      <div class="section-body">
+        <p class="para">${d.opening || ''}</p>
+        <div class="ayah-arabic">${d.quran_arabic || ''}</div>
+        <div class="ayah-ref">${d.quran_ref || ''}</div>
+        <div class="ayah-translation">${d.quran_translation || ''}</div>
+        <p class="para" style="margin-top:12px">${d.quran_explanation || ''}</p>
+      </div>
+    </div>
+
+    <div class="answer-section">
+      <div class="section-header hadith">
+        <span class="section-icon">🕌</span>
+        <span class="section-title">${hTitle}</span>
+      </div>
+      <div class="section-body">
+        <div class="hadith-text">${d.hadith_arabic || ''}</div>
+        <div class="hadith-ref">${d.hadith_ref || ''}</div>
+        <div class="ayah-translation" style="margin-top:10px">${d.hadith_translation || ''}</div>
+        <p class="para" style="margin-top:12px">${d.hadith_explanation || ''}</p>
+      </div>
+    </div>
+
+    <div class="answer-section">
+      <div class="section-header story">
+        <span class="section-icon">📜</span>
+        <span class="section-title">${sTitle}</span>
+      </div>
+      <div class="section-body">
+        <span class="story-label">${storyLabel}</span>
+        <div class="story-text">${d.story || ''}</div>
+      </div>
+    </div>
+
+    <div class="answer-section">
+      <div class="section-header guidance">
+        <span class="section-icon">🌿</span>
+        <span class="section-title">${gTitle}</span>
+      </div>
+      <div class="section-body">
+        ${(d.steps || []).map((s, i) => `
+          <div class="step">
+            <div class="step-num">${i+1}</div>
+            <div class="step-text">${s}</div>
+          </div>`).join('')}
+        <p class="para" style="margin-top:16px;font-style:italic;color:#5c1a1a">${d.closing || ''}</p>
+      </div>
+    </div>
+  `;
+}
+
+async function ask() {
+  const q = document.getElementById('q').value.trim();
+  if (!q) return;
+
+  document.getElementById('inputCard').style.display = 'none';
+  document.getElementById('exSection').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('answerWrap').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        max_tokens: 2000,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: 'system', content: SYSTEM[lang] },
+          { role: 'user', content: q }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'HTTP ' + res.status);
+
+    const txt = data?.choices?.[0]?.message?.content;
+    if (!txt) throw new Error('Empty response');
+
+    let parsed;
+    try { parsed = JSON.parse(txt); }
+    catch { throw new Error('JSON parse failed: ' + txt.slice(0, 100)); }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('answerSections').innerHTML = buildAnswer(parsed);
+
+    const aw = document.getElementById('answerWrap');
+    aw.style.display = 'block';
+    aw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('inputCard').style.display = 'block';
+    document.getElementById('exSection').style.display = 'block';
+    const eb = document.getElementById('errBox');
+    eb.textContent = '⚠ ' + e.message;
+    eb.style.display = 'block';
+  }
+}
+
+document.getElementById('q').addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 'Enter') ask();
+});
+</script>
+</body>
+</html>
